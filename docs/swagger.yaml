@@ -1,0 +1,150 @@
+definitions:
+  domain.Account:
+    properties:
+      balance:
+        type: number
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  domain.Transaction:
+    properties:
+      account_id:
+        type: string
+      amount:
+        type: number
+      id:
+        type: string
+      timestamp:
+        type: string
+      type:
+        type: string
+    type: object
+  web.ErrorResponse:
+    properties:
+      code:
+        type: string
+      message:
+        type: string
+      status:
+        type: integer
+    type: object
+  web.Response:
+    properties:
+      data: {}
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: This API Handles Accounts and Transactions.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: Xepelin Bank
+  version: "1.0"
+paths:
+  /accounts:
+    post:
+      consumes:
+      - application/json
+      description: creates a new account with the received parameters
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: Account to create
+        in: body
+        name: transaction
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Account'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/web.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/web.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.ErrorResponse'
+      summary: Creates a new account
+      tags:
+      - Account
+  /accounts/{id}/balance:
+    get:
+      consumes:
+      - application/json
+      description: get the balance from an account
+      parameters:
+      - description: Account ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/web.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/web.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/web.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.ErrorResponse'
+      summary: Get the balance from an account
+      tags:
+      - Account
+  /transactions:
+    post:
+      consumes:
+      - application/json
+      description: process a received transaction
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: Transaction to process
+        in: body
+        name: transaction
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Transaction'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/web.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/web.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.ErrorResponse'
+      summary: Process a received transaction
+      tags:
+      - Transaction
+swagger: "2.0"
