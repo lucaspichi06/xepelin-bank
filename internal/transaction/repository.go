@@ -6,7 +6,7 @@ import (
 )
 
 type Repository interface {
-	Create(transaction domain.Transaction) (int64, error)
+	Create(tr *domain.Transaction) error
 }
 
 type repository struct {
@@ -19,25 +19,21 @@ func NewRepository(db *sql.DB) Repository {
 	}
 }
 
-func (r repository) Create(transaction domain.Transaction) (int64, error) {
-	query := "INSERT INTO transactions (account_id, type, amount, timestamp) VALUES (?, ?);"
+func (r repository) Create(tr *domain.Transaction) error {
+
+	query := "INSERT INTO transactions (id, account_id, destination_id, type, amount, timestamp) VALUES (?, ?, ?, ?, ?, ?);"
 	stmt, err := r.db.Prepare(query)
 	if err != nil {
-		return 0, err
+		return err
 	}
-	res, err := stmt.Exec(transaction.AccountID, transaction.Type, transaction.Amount, transaction.Timestamp)
+	res, err := stmt.Exec(tr.ID, tr.AccountID, tr.DestinationID, tr.Type, tr.Amount, tr.Timestamp)
 	if err != nil {
-		return 0, err
+		return err
 	}
 	_, err = res.RowsAffected()
 	if err != nil {
-		return 0, err
+		return err
 	}
 
-	id, err := res.LastInsertId()
-	if err != nil {
-		return 0, err
-	}
-
-	return id, nil
+	return nil
 }

@@ -1,7 +1,13 @@
 package domain
 
+import "github.com/google/uuid"
+
 type Account struct {
-	ID      int64   `json:"id"`
-	Name    string  `json:"name"`
-	Balance float64 `json:"balance"`
+	ID      uuid.UUID `json:"id"`
+	Name    string    `json:"name"`
+	Balance float64   `json:"balance"`
+}
+
+type AccountRequest struct {
+	Name string `json:"name" binding:"required"`
 }

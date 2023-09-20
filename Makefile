@@ -16,3 +16,7 @@ down:
 .PHONY: build
 build:
 	mkdir -p bin && go build -o bin/xepelin-bank ./cmd/server/main.go
+
+.PHONY: test
+test:
+	go test -v ./...

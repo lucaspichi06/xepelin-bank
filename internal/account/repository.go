@@ -2,12 +2,14 @@ package account
 
 import (
 	"database/sql"
+	"github.com/google/uuid"
 	"github.com/lucaspichi06/xepelin-bank/internal/domain"
 )
 
 type Repository interface {
-	Create(account domain.Account) (int64, error)
-	Read(id int) (domain.Account, error)
+	Create(account domain.Account) error
+	Read(id uuid.UUID) (domain.Account, error)
+	Update(account domain.Account) error
 }
 
 type repository struct {
@@ -20,29 +22,25 @@ func NewRepository(db *sql.DB) Repository {
 	}
 }
 
-func (r repository) Create(account domain.Account) (int64, error) {
-	query := "INSERT INTO accounts (name, balance) VALUES (?, ?);"
+func (r repository) Create(account domain.Account) error {
+	query := "INSERT INTO accounts (id, name, balance) VALUES (?, ?, ?);"
 	stmt, err := r.db.Prepare(query)
 	if err != nil {
-		return 0, err
+		return err
 	}
-	res, err := stmt.Exec(account.Name, account.Balance)
+	res, err := stmt.Exec(account.ID, account.Name, account.Balance)
 	if err != nil {
-		return 0, err
+		return err
 	}
 	_, err = res.RowsAffected()
 	if err != nil {
-		return 0, err
-	}
-	id, err := res.LastInsertId()
-	if err != nil {
-		return 0, err
+		return err
 	}
 
-	return id, nil
+	return nil
 }
 
-func (r repository) Read(id int) (domain.Account, error) {
+func (r repository) Read(id uuid.UUID) (domain.Account, error) {
 	var account domain.Account
 	query := "SELECT * FROM accounts WHERE id = ?;"
 	row := r.db.QueryRow(query, id)
@@ -51,4 +49,22 @@ func (r repository) Read(id int) (domain.Account, error) {
 		return domain.Account{}, err
 	}
 	return account, nil
+}
+
+func (r repository) Update(account domain.Account) error {
+	query := "UPDATE accounts SET name = ?, balance = ? WHERE id = ?;"
+	stmt, err := r.db.Prepare(query)
+	if err != nil {
+		return err
+	}
+	res, err := stmt.Exec(account.Name, account.Balance, account.ID)
+	if err != nil {
+		return err
+	}
+	_, err = res.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

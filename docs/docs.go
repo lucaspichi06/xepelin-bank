@@ -47,7 +47,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/domain.Account"
+                            "$ref": "#/definitions/domain.AccountRequest"
                         }
                     }
                 ],
@@ -178,15 +178,12 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "domain.Account": {
+        "domain.AccountRequest": {
             "type": "object",
+            "required": [
+                "name"
+            ],
             "properties": {
-                "balance": {
-                    "type": "number"
-                },
-                "id": {
-                    "type": "string"
-                },
                 "name": {
                     "type": "string"
                 }
@@ -194,6 +191,11 @@ const docTemplate = `{
         },
         "domain.Transaction": {
             "type": "object",
+            "required": [
+                "account_id",
+                "amount",
+                "type"
+            ],
             "properties": {
                 "account_id": {
                     "type": "string"
@@ -201,10 +203,13 @@ const docTemplate = `{
                 "amount": {
                     "type": "number"
                 },
-                "id": {
+                "destination_id": {
                     "type": "string"
                 },
                 "timestamp": {
+                    "type": "string"
+                },
+                "transaction_id": {
                     "type": "string"
                 },
                 "type": {

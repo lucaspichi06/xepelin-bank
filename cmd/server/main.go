@@ -27,7 +27,9 @@ import (
 // @host      localhost:8080
 func main() {
 	// opening the DB
-	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/my_db", os.Getenv("DB_USER"), os.Getenv("DB_PASS"), os.Getenv("DB_HOST"), os.Getenv("DB_PORT")))
+	//db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/my_db", os.Getenv("DB_USER"), os.Getenv("DB_PASS"), os.Getenv("DB_HOST"), os.Getenv("DB_PORT")))
+	os.Setenv("TOKEN", "my-secret-token")
+	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/my_db", "root", "rootpass", "localhost", "3306"))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -43,30 +45,24 @@ func main() {
 	r.GET("/ping", func(c *gin.Context) { c.String(200, "pong") })
 
 	// account section
+	accountRepository := account.NewRepository(db)
+	accountService := account.NewService(accountRepository)
+	accountHandler := handler.NewAccountHandler(accountService)
+
+	acc := r.Group("/accounts")
 	{
-		accountRepository := account.NewRepository(db)
-		accountService := account.NewService(accountRepository)
-		accountHandler := handler.NewAccountHandler(accountService)
-
-		acc := r.Group("/accounts")
-		{
-			acc.GET(":id/balance", accountHandler.Read())
-			acc.POST("", middleware.Authentication(), accountHandler.Create())
-		}
-
+		acc.GET(":id/balance", accountHandler.GetBalance())
+		acc.POST("", middleware.Authentication(), accountHandler.Create())
 	}
 
 	// transaction section
+	transactionRepository := transaction.NewRepository(db)
+	transactionService := transaction.NewService(transactionRepository, accountService)
+	transactionHandler := handler.NewTransactionsHandler(transactionService)
+
+	tran := r.Group("/transactions")
 	{
-		transactionRepository := transaction.NewRepository(db)
-		transactionService := transaction.NewService(transactionRepository)
-		transactionHandler := handler.NewTransactionsHandler(transactionService)
-
-		tran := r.Group("/transactions")
-		{
-			tran.POST("", middleware.Authentication(), transactionHandler.Process())
-		}
-
+		tran.POST("", middleware.Authentication(), middleware.Logger(), transactionHandler.Process())
 	}
 
 	// documentation section

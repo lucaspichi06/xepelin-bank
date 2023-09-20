@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"github.com/lucaspichi06/xepelin-bank/internal/domain"
 	tran "github.com/lucaspichi06/xepelin-bank/internal/transaction"
 	custom_errors "github.com/lucaspichi06/xepelin-bank/pkg/errors"
@@ -45,8 +46,14 @@ func (t transaction) Process() gin.HandlerFunc {
 			return
 		}
 
-		tr.ID, err = t.s.Create(tr)
-		if err != nil {
+		c.Set("transaction_type", tr.Type)
+		c.Set("transaction_amount", tr.Amount)
+
+		if err = t.s.Create(&tr); err != nil {
+			if errors.Is(err, custom_errors.ErrInvalidTransactionType) {
+				web.Failure(c, http.StatusBadRequest, custom_errors.ErrInvalidTransactionType)
+				return
+			}
 			web.Failure(c, http.StatusInternalServerError, err)
 			return
 		}
