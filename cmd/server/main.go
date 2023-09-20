@@ -27,9 +27,7 @@ import (
 // @host      localhost:8080
 func main() {
 	// opening the DB
-	//db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/my_db", os.Getenv("DB_USER"), os.Getenv("DB_PASS"), os.Getenv("DB_HOST"), os.Getenv("DB_PORT")))
-	os.Setenv("TOKEN", "my-secret-token")
-	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/my_db", "root", "rootpass", "localhost", "3306"))
+	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/my_db", os.Getenv("DB_USER"), os.Getenv("DB_PASS"), os.Getenv("DB_HOST"), os.Getenv("DB_PORT")))
 	if err != nil {
 		log.Fatal(err)
 	}

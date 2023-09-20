@@ -1,10 +1,8 @@
 version: '3.9'
-networks:
-  local_keycloak_network:
 services:
   db:
-    image: mysql
-    container_name: "my_db"
+    image: mysql:5.7
+    container_name: my_db
     restart: always
     environment:
       - MYSQL_DATABASE=my_db
@@ -15,11 +13,12 @@ services:
       - '3306:3306'
     networks:
       - local_keycloak_network
+
   xepelin-bank:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: "xepelin-bank"
+    container_name: xepelin-bank
     depends_on:
       - db
     restart: always
@@ -36,3 +35,6 @@ services:
       - 8080
     networks:
       - local_keycloak_network
+
+networks:
+  local_keycloak_network:
